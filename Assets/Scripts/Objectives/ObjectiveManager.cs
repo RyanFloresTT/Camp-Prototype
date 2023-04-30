@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class ObjectiveManager : MonoBehaviour
 {
+    [SerializeField] private GameObject objectiveUIHolder;
     [SerializeField] private TextMeshProUGUI objName;
     [SerializeField] private TextMeshProUGUI objDesc;
     [SerializeField] private TextMeshProUGUI objBonusTimer;
@@ -16,16 +17,19 @@ public class ObjectiveManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        currentObjective = null;
     }
 
     private void Start()
     {
         Campsite.PlayerAcceptedNewObjective += Handle_PlayerAcceptedNewObjective;
+        TurnUIElementsOff();
     }
 
     private void Handle_PlayerAcceptedNewObjective(object sender, Objective e)
     {
         ActivateObjective(e);
+        TurnUIElementsOn();
     }
 
     private void ActivateObjective(Objective objective)
@@ -33,6 +37,15 @@ public class ObjectiveManager : MonoBehaviour
         currentObjective = objective;
         UpdateUIElements();
         StartBonusTimerCountdown();
+    }
+
+    private void TurnUIElementsOn()
+    {
+        objectiveUIHolder.SetActive(true);
+    }
+    private void TurnUIElementsOff()
+    {
+        objectiveUIHolder.SetActive(false);
     }
 
     private void UpdateUIElements()
@@ -48,7 +61,10 @@ public class ObjectiveManager : MonoBehaviour
 
     private void Update()
     {
-        CountdownBonusTimer();
+        if (currentObjective != null)
+        {
+            CountdownBonusTimer();
+        }
     }
 
     private void CountdownBonusTimer()

@@ -20,6 +20,7 @@ public class Detection : MonoBehaviour
             Debug.Log("Detect Success.");
         }
     }
+
     private void OnTriggerExit2D(Collider2D other)
     {
         if (IsInLayerMask(other.gameObject, detectableLayer))

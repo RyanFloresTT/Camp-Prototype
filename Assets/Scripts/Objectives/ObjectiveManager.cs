@@ -28,6 +28,7 @@ public class ObjectiveManager : MonoBehaviour
 
     private void Handle_PlayerAcceptedNewObjective(object sender, Objective e)
     {
+        if (currentObjective != null) return;
         ActivateObjective(e);
         TurnUIElementsOn();
     }

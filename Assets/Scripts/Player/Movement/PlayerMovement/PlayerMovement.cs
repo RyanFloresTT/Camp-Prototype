@@ -35,7 +35,6 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-
     private Vector2 GetInputVector() => inputManager.GetMovementVectorNormalized();
     public bool IsMoving() => moveDirection != Vector3.zero;
     private bool CanMove() => !Physics2D.Raycast(transform.position, GetInputVector(), rayDistance, barrierColliders);

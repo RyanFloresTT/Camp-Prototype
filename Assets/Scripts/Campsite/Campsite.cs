@@ -11,6 +11,7 @@ public class Campsite : MonoBehaviour
 
     private ObjectiveGenerator objectiveGenerator = new();
     private Objective objective;
+    private MainCameraController mainCameraController;
 
     private void Start()
     {
@@ -18,17 +19,17 @@ public class Campsite : MonoBehaviour
         detection.ObjectExitedRange += Detection_ObjectExitedRange;
 
         objective = objectiveGenerator.GenerateNewObjective();
+        mainCameraController = MainCameraController.Instance;
     }
 
     private void Handle_ObjectEnteredRange(object sender, GameObject e)
     {
-        // Play Cinematic to Show off Camp
-        // Give Objective Information to Player
+        //mainCameraController.PlayCampsiteCinematic(transform);
         PlayerAcceptedNewObjective?.Invoke(this, objective);
     }
 
     private void Detection_ObjectExitedRange(object sender, GameObject e)
     {
-        // Remove Objective Information from Player (Might have to tweak the numbers on the range)
+        // Remove Objective Information from Player After a Brief Delay
     }
 }

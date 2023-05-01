@@ -9,6 +9,7 @@ public class ObjectiveManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI objName;
     [SerializeField] private TextMeshProUGUI objDesc;
     [SerializeField] private TextMeshProUGUI objBonusTimer;
+    [SerializeField] private GameObject enemy;
 
     private Objective currentObjective;
     private float bonusTimer;
@@ -73,4 +74,6 @@ public class ObjectiveManager : MonoBehaviour
         bonusTimer -= Time.deltaTime;
         objBonusTimer.text = bonusTimer.ToString();
     }
+
+    public GameObject GetEnemy() => enemy;
 }

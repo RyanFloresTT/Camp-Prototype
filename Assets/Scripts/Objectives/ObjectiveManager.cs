@@ -1,69 +1,92 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class ObjectiveManager : MonoBehaviour
 {
     [SerializeField] private GameObject objectiveUIHolder;
+    [SerializeField] private GameObject abandonWarningUI;
     [SerializeField] private TextMeshProUGUI objName;
     [SerializeField] private TextMeshProUGUI objDesc;
     [SerializeField] private TextMeshProUGUI objBonusTimer;
     [SerializeField] private GameObject enemy;
 
-    private Objective currentObjective;
-    private float bonusTimer;
     public static ObjectiveManager Instance { get; private set; }
+    public Objective CurrentObjective { get; private set; }
+    private float bonusTimer;
 
     private void Awake()
     {
         Instance = this;
-        currentObjective = null;
+        CurrentObjective = null;
     }
 
     private void Start()
     {
         Campsite.PlayerAcceptedNewObjective += Handle_PlayerAcceptedNewObjective;
-        TurnUIElementsOff();
+        Campsite.PlayerAboutToAbandon += Handle_PlayerAboutToAbandon;
+        Campsite.PlayerAbondonedObjective += Handle_PlayerAbandonedObjective;
+        TurnUIElementsOff(objectiveUIHolder);
+        TurnUIElementsOff(abandonWarningUI);
+    }
+
+    private void Handle_PlayerAbandonedObjective(object sender, System.EventArgs e)
+    {
+        TurnUIElementsOff(objectiveUIHolder);
+        CurrentObjective = null;
+    }
+
+    private void Handle_PlayerAboutToAbandon(object sender, bool willAbandon)
+    {
+        if (!willAbandon)
+        {
+            TurnUIElementsOff(abandonWarningUI);
+        } else
+        {
+            TurnUIElementsOn(abandonWarningUI);
+        }
+
     }
 
     private void Handle_PlayerAcceptedNewObjective(object sender, Objective e)
     {
-        if (currentObjective != null) return;
+        if (CurrentObjective != null) return;
         ActivateObjective(e);
-        TurnUIElementsOn();
+        TurnUIElementsOn(objectiveUIHolder);
     }
 
     private void ActivateObjective(Objective objective)
     {
-        currentObjective = objective;
+        CurrentObjective = objective;
         UpdateUIElements();
         StartBonusTimerCountdown();
     }
 
-    private void TurnUIElementsOn()
+    private void TurnUIElementsOn(GameObject gameObject)
     {
-        objectiveUIHolder.SetActive(true);
+        gameObject.SetActive(true);
     }
-    private void TurnUIElementsOff()
+    private void TurnUIElementsOff(GameObject gameObject)
     {
-        objectiveUIHolder.SetActive(false);
+        gameObject.SetActive(false);
     }
 
     private void UpdateUIElements()
     {
-        objName.text = currentObjective.Name;
-        objDesc.text = currentObjective.Description;
+        objName.text = CurrentObjective.Name;
+        objDesc.text = CurrentObjective.Description;
     }
 
     private void StartBonusTimerCountdown()
     {
-        bonusTimer = currentObjective.BonusTimeLimitInSec;
+        bonusTimer = CurrentObjective.BonusTimeLimitInSec;
     }
 
     private void Update()
     {
-        if (currentObjective != null)
+        if (CurrentObjective != null)
         {
             CountdownBonusTimer();
         }
@@ -72,7 +95,7 @@ public class ObjectiveManager : MonoBehaviour
     private void CountdownBonusTimer()
     {
         bonusTimer -= Time.deltaTime;
-        objBonusTimer.text = bonusTimer.ToString();
+        objBonusTimer.text = Mathf.Ceil(bonusTimer).ToString();
     }
 
     public GameObject GetEnemy() => enemy;

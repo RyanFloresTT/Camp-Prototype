@@ -17,7 +17,6 @@ public class Detection : MonoBehaviour
         if (IsInLayerMask(other.gameObject, detectableLayer))
         {
             ObjectEnteredRange?.Invoke(this, other.gameObject);
-            Debug.Log("Detect Success.");
         }
     }
 

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class Campsite : MonoBehaviour
@@ -7,16 +8,21 @@ public class Campsite : MonoBehaviour
     [SerializeField] private float spawnRadius = 5.0f;
 
     public static event EventHandler<Objective> PlayerAcceptedNewObjective;
+    public static event EventHandler<bool> PlayerAboutToAbandon;
+    public static event EventHandler PlayerAbondonedObjective;
 
     private ObjectiveGenerator objectiveGenerator = new();
     private Objective objective;
     private MainCameraController mainCameraController;
     private Vector2 campsitePosition;
+    private bool willAbandon;
+    private Objective playerCurrentObjective;
+    private int abandonDelay = 3;
 
     private void Start()
     {
         detection.ObjectEnteredRange += Handle_ObjectEnteredRange;
-        detection.ObjectExitedRange += Detection_ObjectExitedRange;
+        detection.ObjectExitedRange += Handle_ObjectExitedRange;
 
         objective = objectiveGenerator.GenerateNewObjective();
         mainCameraController = MainCameraController.Instance;
@@ -27,13 +33,33 @@ public class Campsite : MonoBehaviour
 
     private void Handle_ObjectEnteredRange(object sender, GameObject e)
     {
+        playerCurrentObjective = ObjectiveManager.Instance.CurrentObjective;
         //mainCameraController.PlayCampsiteCinematic(transform);
-        PlayerAcceptedNewObjective?.Invoke(this, objective);
+        if (playerCurrentObjective == null)
+        {
+            PlayerAcceptedNewObjective?.Invoke(this, objective);
+        } else
+        {
+            willAbandon = false;
+            Debug.Log(willAbandon);
+            PlayerAboutToAbandon?.Invoke(this, willAbandon);
+        }
     }
 
-    private void Detection_ObjectExitedRange(object sender, GameObject e)
+    private void Handle_ObjectExitedRange(object sender, GameObject e)
     {
         // Remove Objective Information from Player After a Brief Delay
+        StartCoroutine(AbandonObjectiveAfterDelay(abandonDelay));
+    }
+
+    private IEnumerator AbandonObjectiveAfterDelay(int delay)
+    {
+        willAbandon = true;
+        Debug.Log(willAbandon);
+        PlayerAboutToAbandon?.Invoke(this, willAbandon);
+        yield return new WaitForSecondsRealtime(delay);
+        Debug.Log(willAbandon);
+        if (willAbandon) PlayerAbondonedObjective?.Invoke(this, EventArgs.Empty);
     }
 
     private void SpawnEnemies()

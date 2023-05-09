@@ -35,6 +35,7 @@ public class ObjectiveManager : MonoBehaviour
     private void Handle_PlayerAbandonedObjective(object sender, System.EventArgs e)
     {
         TurnUIElementsOff(objectiveUIHolder);
+        TurnUIElementsOff(abandonWarningUI);
         CurrentObjective = null;
     }
 
